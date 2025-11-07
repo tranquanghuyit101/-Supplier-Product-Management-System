@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Supplier Management</title>
+    <link rel="stylesheet" th:href="@{/suppliers.css}">
+    <script>
+        function confirmDelete(e){
+            if(!confirm('Are you sure you want to delete this supplier?')) e.preventDefault();
+        }
+    </script>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <!-- ========== HEADER ========== -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 7h18M3 12h18M3 17h18"/>
+                    </svg>
+                    <span class="logo-text">Suppliers</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="/products" class="btn btn-ghost">Back</a>
+                <a href="/logout" class="btn btn-ghost">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content container">
+
+        <!-- Alert messages -->
+        <div th:if="${success}" class="alert success" th:text="${success}" style="margin-bottom:16px;"></div>
+        <div th:if="${error}" class="alert error" th:text="${error}" style="margin-bottom:16px;"></div>
+
+        <div th:if="${forbid}" class="alert error" style="margin-bottom:16px;">
+            You have no permission to access this function!
+        </div>
+
+        <div th:unless="${forbid}">
+            <!-- ========== ADD / UPDATE SUPPLIER ========== -->
+            <div class="card form-card">
+                <div class="card-header">
+                    <div class="card-header-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <h2 class="card-title">Add / Update Supplier</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/suppliers/add}" th:object="${supplierForm}" method="post" class="product-form">
+                        <div class="form-group">
+                            <label class="form-label">Supplier Name</label>
+                            <input class="form-input" th:field="*{suppliername}" placeholder="5–50 characters" minlength="5" maxlength="50" required/>
+                            <div class="error-message" th:if="${#fields.hasErrors('suppliername')}" th:errors="*{suppliername}"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Supplier</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========== SUPPLIER LIST ========== -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v16l-4-4H4a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        <h2 class="card-title">Supplier List</h2>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${suppliers}">
+                            <td th:text="${s.id}" class="font-weight-medium"></td>
+                            <td th:text="${s.suppliername}"></td>
+                            <td class="action-cell">
+                                <form th:action="@{'/suppliers/update/' + ${s.id}}" method="post" style="display:inline-flex; gap:8px;">
+                                    <input class="form-input" type="text" name="suppliername" th:value="${s.suppliername}" minlength="5" maxlength="50" required style="width:200px;"/>
+                                    <button class="btn btn-secondary btn-sm" type="submit">Update</button>
+                                </form>
+                                <form th:action="@{'/suppliers/delete/' + ${s.id}}" method="post" style="display:inline;">
+                                    <button class="btn btn-danger btn-sm" type="submit" onclick="confirmDelete(event)">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(suppliers)}">
+                            <td colspan="3" class="empty-state">
+                                <div class="empty-icon">📦</div>
+                                <div>No suppliers available</div>
+                                <div class="empty-hint">Start by adding a new supplier above.</div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

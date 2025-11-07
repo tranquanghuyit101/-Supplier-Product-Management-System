@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Product Management</title>
+
+    <!-- Product Management CSS -->
+    <link rel="stylesheet" th:href="@{/product.css}">
+
+    <script>
+        function confirmDelete(e) {
+            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        }
+    </script>
+</head>
+
+<body>
+<div class="page-wrapper">
+    <!-- Header Navigation -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <span class="logo-text">Product Management</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span th:text="${username}">username</span>
+                </div>
+                <a class="btn btn-ghost" href="/logout">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- MANAGER VIEW -->
+        <div th:if="${mode}=='MANAGER_VIEW'" class="container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Manager Dashboard</h1>
+                    <p class="page-subtitle">Top performing products</p>
+                </div>
+                <a class="btn btn-primary" href="/suppliers">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Manage Suppliers
+                </a>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Top 5 Products</div>
+                        <div class="stat-value">Highest Price</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Premium Products</h2>
+                    <span class="badge badge-primary">Top 5</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>ID</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th class="text-right">Price</th>
+                                <th>Supplier</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p, iStat : ${top5}">
+                                <td class="text-center">
+                                    <span class="rank-badge" th:text="${iStat.index + 1}">1</span>
+                                </td>
+                                <td th:text="${p.id}"></td>
+                                <td>
+                                    <span class="code-badge" th:text="${p.productId}"></span>
+                                </td>
+                                <td class="font-weight-bold" th:text="${p.name}"></td>
+                                <td class="text-right">
+                                    <span class="price-tag" th:text="${#numbers.formatDecimal(p.price,1,'COMMA',2,'POINT')}">0.00</span>
+                                </td>
+                                <td th:text="${p.supplier != null ? p.supplier.suppliername : '-'}">-</td>
+                                <td th:text="${p.createdBy}"></td>
+                                <td th:text="${p.createdAt}"></td>
+                                <td th:text="${p.updatedAt}"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(top5)}">
+                                <td colspan="9" class="text-center empty-state">
+                                    <div class="empty-icon">📦</div>
+                                    <div>No products found</div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAFF VIEW -->
+        <div th:if="${mode}=='STAFF_VIEW'" class="container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Product Management</h1>
+                    <p class="page-subtitle">Manage your product inventory</p>
+                </div>
+                <a class="btn btn-secondary" href="/suppliers">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Suppliers
+                </a>
+            </div>
+
+            <!-- Product Form -->
+            <div class="card form-card">
+                <div class="card-header">
+                    <div class="card-header-content">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        <h2 class="card-title" th:text="${productForm.id} != null ? 'Update Product' : 'Add New Product'">Add New Product</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form class="product-form"
+                          th:action="@{${productForm.id} != null ? '/products/update/' + ${productForm.id} : '/products/add'}"
+                          th:object="${productForm}" method="post">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Product ID</label>
+                                <div class="input-wrapper">
+                                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    </svg>
+                                    <input class="form-input" th:field="*{productId}" placeholder="e.g., P001, PROD-123"/>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Product Name</label>
+                                <div class="input-wrapper">
+                                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                    <input class="form-input" th:field="*{name}" placeholder="5-50 characters"/>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Price</label>
+                                <div class="input-wrapper">
+                                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                    <input class="form-input" type="number" step="0.01" th:field="*{price}" placeholder="0.00"/>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Supplier</label>
+                                <div class="select-wrapper">
+                                    <svg class="select-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                    <select class="form-select" th:field="*{supplier.id}">
+                                        <option value="" disabled selected>Select a supplier</option>
+                                        <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.suppliername}"></option>
+                                    </select>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('supplier')}" th:errors="*{supplier}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span th:text="${productForm.id} != null ? 'Update Product' : 'Add Product'">Add Product</span>
+                            </button>
+                            <a class="btn btn-ghost" href="/products">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">All Products</h2>
+                    <span class="badge badge-secondary">5 per page</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th class="text-right">Price</th>
+                                <th>Supplier</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p : ${pageData.content}"
+                                th:attr="data-id=${p.id},
+             data-productid=${p.productId},
+             data-name=${p.name},
+             data-price=${p.price},
+             data-supplierid=${p.supplier != null ? p.supplier.id : 0}">
+                                <!-- ID -->
+                                <td th:text="${p.id}"></td>
+
+                                <!-- Product Code -->
+                                <td>
+                                    <span class="code-badge" th:text="${p.productId}"></span>
+                                </td>
+
+                                <!-- Product Name -->
+                                <td class="font-weight-medium" th:text="${p.name}"></td>
+
+                                <!-- Price -->
+                                <td class="text-right">
+        <span class="price-tag"
+              th:text="${#numbers.formatDecimal(p.price, 1, 'COMMA', 2, 'POINT')}"></span>
+                                </td>
+
+                                <!-- Supplier -->
+                                <td th:text="${p.supplier != null ? p.supplier.suppliername : '-'}"></td>
+
+                                <!-- Created By -->
+                                <td th:text="${p.createdBy}"></td>
+
+                                <!-- Created At -->
+                                <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+                                <td th:text="${p.updatedAt != null ? #temporals.format(p.updatedAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+
+
+                                <!-- Actions -->
+                                <td class="action-cell text-center">
+                                    <!-- Edit Button -->
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{'/products/edit/' + ${p.id}}">
+                                        <!-- svg -->
+                                        Edit
+                                    </a>
+
+                                    <!-- Delete Button -->
+                                    <form th:action="@{'/products/delete/' + ${p.id}}"
+                                          method="post" style="display:inline">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit"
+                                                onclick="confirmDelete(event)">
+                                            <!-- svg -->
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <a class="btn btn-ghost" th:if="${!pageData.first}" th:href="@{'/products'(page=${currentPage-1})}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            Previous
+                        </a>
+                        <span class="pagination-info">
+                                Page <strong th:text="${pageData.number+1}">1</strong> of <span th:text="${pageData.totalPages}">1</span>
+                            </span>
+                        <a class="btn btn-ghost" th:if="${!pageData.last}" th:href="@{'/products'(page=${currentPage+1})}">
+                            Next
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="error-message" th:if="${error}" th:text="${error}"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy tất cả hàng dữ liệu trong tbody (bỏ qua các hàng empty-state)
+        const rows = document.querySelectorAll('.table tbody tr[th\\:each], .table tbody tr[data-id]');
+
+        // Nếu Thymeleaf đã render data-id thì selector [data-id] sẽ tìm thấy.
+        // Gắn listener cho mỗi hàng có data-id
+        document.querySelectorAll('.table tbody tr[data-id]').forEach(tr => {
+            tr.addEventListener('click', function (e) {
+                // tránh click vào nút Edit / Delete làm trigger fill
+                if (e.target.closest('a') || e.target.closest('button') || e.target.closest('form')) return;
+
+                fillProductForm(this);
+                // highlight selected row
+                document.querySelectorAll('.table tbody tr').forEach(r => r.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Optional: gắn reset behavior (nút Reset)
+        const resetBtn = document.querySelector('.form-actions a.btn-ghost');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function (e) {
+                // Prevent default navigation if href present; instead reset form fields
+                e.preventDefault();
+                resetProductForm();
+            });
+        }
+    });
+
+    /**
+     * Điền dữ liệu vào form từ một <tr> (dùng attributes data-*)
+     */
+    function fillProductForm(row) {
+        const id = row.getAttribute('data-id') || '';
+        const productId = row.getAttribute('data-productid') || '';
+        const name = row.getAttribute('data-name') || '';
+        const price = row.getAttribute('data-price') || '';
+        const supplierId = row.getAttribute('data-supplierid') || '';
+
+        // Tìm các input/select trên form (th:field tạo name tương tự như property)
+        const form = document.querySelector('.product-form');
+        if (!form) return;
+
+        const inputProductId = form.querySelector('input[name="productId"]');
+        const inputName = form.querySelector('input[name="name"]');
+        const inputPrice = form.querySelector('input[name="price"]');
+        const selectSupplier = form.querySelector('select[name="supplier.id"]');
+
+        if (inputProductId) inputProductId.value = productId;
+        if (inputName) inputName.value = name;
+        if (inputPrice) inputPrice.value = price;
+
+        if (selectSupplier) {
+            // nếu supplierId = '0' (no supplier), chọn giá trị rỗng
+            selectSupplier.value = (supplierId && supplierId !== '0') ? supplierId : '';
+        }
+
+        // đổi action form để submit tới update endpoint
+        form.action = '/products/update/' + id;
+
+        // đổi nút submit sang "Update Product"
+        const submitSpan = form.querySelector('button[type="submit"] span');
+        if (submitSpan) submitSpan.textContent = 'Update Product';
+        else {
+            // nếu không có span, đổi toàn bộ button text
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Product';
+        }
+
+        // đổi tiêu đề form
+        const titleEl = document.querySelector('.form-card .card-title');
+        if (titleEl) titleEl.textContent = 'Update Product';
+
+        // thêm hidden field id nếu cần (nếu backend cần id trên body)
+        if (!form.querySelector('input[name="id"]')) {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'id';
+            hidden.value = id;
+            form.appendChild(hidden);
+        } else {
+            form.querySelector('input[name="id"]').value = id;
+        }
+    }
+
+    /**
+     * Reset form về trạng thái Add New Product (xoá selection, đặt action về /products/add)
+     */
+    function resetProductForm() {
+        const form = document.querySelector('.product-form');
+        if (!form) return;
+        form.reset();
+        form.action = '/products/add';
+
+        // Remove hidden id if exists
+        const hid = form.querySelector('input[name="id"]');
+        if (hid) hid.remove();
+
+        const submitSpan = form.querySelector('button[type="submit"] span');
+        if (submitSpan) submitSpan.textContent = 'Add Product';
+        else {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Add Product';
+        }
+
+        const titleEl = document.querySelector('.form-card .card-title');
+        if (titleEl) titleEl.textContent = 'Add New Product';
+
+        // remove selection highlight
+        document.querySelectorAll('.table tbody tr.selected').forEach(r => r.classList.remove('selected'));
+    }
+</script>
+</html>
